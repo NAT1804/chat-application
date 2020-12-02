@@ -1,0 +1,10 @@
+Client1 kết nối với Server
+Server gửi tới Client1 'Enter your name:' 
+Client1: [Nhap ten]
+Client1: message //không có chỉ định tới client khác sẽ gửi message tới tất cả các client đang online.
+Client1: @Client2 message
+nếu Client2 online
+    Client2 : [Client1 to you] message
+nếu Client2 không online hoặc không tồn tại
+    Client1: Client2 not online || CLient2 not exists
+Client1: /quit
