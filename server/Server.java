@@ -99,6 +99,23 @@ class ClientHandler extends Thread {
                         break;
                     }
                 }
+
+                // announce the list of users who are online
+                String notification = "List User Online:\n";
+                for (int i=0; i<maxClients; i++) {
+                    if (clients[i] != null && clients[i] != this) {
+                        notification += (clients[i].clientName.substring(1) + " online\n");
+                    }
+                    if (i == (maxClients - 1)) {
+                        if (!notification.equals("List User Online:\n")) {
+                            this.os.writeUTF(notification);
+                        } else {
+                            this.os.writeUTF(notification + "No user online\n");
+                        }
+                    }
+                }
+
+                // notice that new users are online
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this) {
                         clients[i].os.writeUTF("--- A new user " + name + " entered the chat room ---\n");
