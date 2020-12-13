@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class ClientGUI extends JFrame implements WindowListener, ActionListener {
     private JLabel label;
-    private JTextField tf, tfServer, tfPort, tfFile;
+    private JTextField tf, tfUsername, tfServer, tfPort, tfFile;
     private JButton connect, exit, create, upload, send, download;
     private JTextArea ta, list;
     private JComboBox comboBox;
@@ -17,13 +17,13 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     private Client client;
     private int port;
     private String host;
-    private int firstInput;
+    //private int firstInput;
 
     public ClientGUI(String host, int port) {
         super("Chat Client");
         this.host = host;
         this.port = port;
-        this.firstInput = 0;
+        //this.firstInput = 0;
         buildGUI(host ,port);
     }
 
@@ -31,18 +31,18 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
 
         /* --- The NorthPanel ---*/
         JPanel northPanel = new JPanel(new GridLayout(1,1));
-        // Panel the server name and the port number
-        JPanel serverAndPort = new JPanel(new GridLayout(1,5, 1, 3));
-        // the two JTextField with default value for server address and port number
+        JPanel header = new JPanel(new GridLayout(1,6));
         tfServer = new JTextField(host);
         tfPort = new JTextField("" + port);
-        serverAndPort.add(new JLabel("Server Address:  ", SwingConstants.RIGHT));
-        serverAndPort.add(tfServer);
-        //serverAndPort.add(new JLabel(""));
-        serverAndPort.add(new JLabel("Port Number:  ", SwingConstants.RIGHT));
-        serverAndPort.add(tfPort);
-        serverAndPort.add(new JLabel(""));
-        northPanel.add(serverAndPort);
+        header.add(new JLabel("Server Address: ", SwingConstants.RIGHT));
+        header.add(tfServer);
+        header.add(new JLabel("Port Number: ", SwingConstants.RIGHT));
+        header.add(tfPort);
+        northPanel.add(header);
+        header.add(new JLabel("User Name: ", SwingConstants.RIGHT));
+        tfUsername = new JTextField("");
+        header.add(tfUsername);
+        tfUsername.requestFocus();
         add(northPanel, BorderLayout.NORTH); // add north panel to the frame
         /* --- end ---*/
 
@@ -212,10 +212,11 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         // let the user change them
         tfServer.setEditable(true);
         tfPort.setEditable(true);
+        tfUsername.setEditable(true);
         // don't react to a <CR> after the username
         tf.removeActionListener(this);
         connected = false;
-        firstInput = 0;
+        //firstInput = 0;
     }
 
     @Override
@@ -227,49 +228,109 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             return;
         }
 
+        if (o == upload) {
+            // create an object of JFileChooser class
+            JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+            // invoke the showsSaveDialog function to show the save dialog
+            int r = j.showSaveDialog(null);
+            // if the user selects a file
+            if (r == JFileChooser.APPROVE_OPTION)
+            {
+                // set the label to the path of the selected file
+                tfFile.setText(j.getSelectedFile().getAbsolutePath());
+                return;
+            }
+            // if the user cancelled the operation
+            else {
+                tfFile.setText("No file selected");
+                return;
+            }
+        }
+
+        if (o == send) {
+            if (tfFile.getText().equals("No file selected")) {
+                JOptionPane.showMessageDialog(this, "You need to select the file to send!");
+            } else {
+                try {
+                    String dir = tfFile.getText();
+                    int lastIndex = dir.lastIndexOf('\\');
+                    String filename = dir.substring(lastIndex+1);
+                    client.send("SEND " + filename);
+                    client.sendFile(tfFile.getText());
+                    tfFile.setText("No file selected");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        }
+
         if (connected) {
             if (!tf.getText().equals("")) {
                 //System.out.println("End error");
                 client.send(tf.getText());
                 tf.setText("");
-                if (firstInput == 0) firstInput = 1;
+                //if (firstInput == 0) firstInput = 1;
             }
         }
 
         // must be input name in first input
-        if (firstInput == 1) {
-            create.setEnabled(true);
-            upload.setEnabled(true);
-            send.setEnabled(true);
-            comboBox.setEnabled(true);
-            download.setEnabled(true);
-            firstInput = 2;
-        }
+//        if (firstInput == 1) {
+//            create.setEnabled(true);
+//            upload.setEnabled(true);
+//            send.setEnabled(true);
+//            comboBox.setEnabled(true);
+//            download.setEnabled(true);
+//            firstInput = 2;
+//        }
 
         if (o == connect) {
             String hostAddr = tfServer.getText().trim();
-            if (hostAddr.length() == 0) return;
+            if (hostAddr.length() == 0) {
+                JOptionPane.showMessageDialog(this, "Host address can't be empty!");
+                tfServer.requestFocus();
+                return;
+            }
             String portNumber = tfPort.getText().trim();
-            if (portNumber.length() == 0) return;
+            if (portNumber.length() == 0) {
+                JOptionPane.showMessageDialog(this, "Port can't be empty!");
+                tfPort.requestFocus();
+                return;
+            }
             int portSelected = 0;
             try {
                 portSelected = Integer.parseInt(portNumber);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            String username = tfUsername.getText().trim();
+            if (username.length() == 0) {
+                JOptionPane.showMessageDialog(this, "User name can't be empty!");
+                tfUsername.requestFocus();
+                return;
+            }
             client = new Client(hostAddr, portSelected, this);
             if (!client.init()) return;
+
+            // Send username
+            client.send(username);
+
             tf.setEditable(true);
             tf.setText("");
             label.setText("Enter your message below");
             connected = true;
 
-            // disable login button
+            // disable login button and enable other buttons
             connect.setEnabled(false);
             exit.setEnabled(true);
+            create.setEnabled(true);
+            upload.setEnabled(true);
+            send.setEnabled(true);
+            comboBox.setEnabled(true);
+            download.setEnabled(true);
             // disable the Server and Port JTextField
             tfServer.setEditable(false);
             tfPort.setEditable(false);
+            tfUsername.setEditable(false);
             // Action listener for when the user enter a message
             tf.addActionListener(this);
             tf.requestFocus();

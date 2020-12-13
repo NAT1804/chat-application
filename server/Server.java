@@ -36,7 +36,7 @@ public class Server {
         servercontinue = true;
         try {
             serverSocket = new ServerSocket(port);
-            System.out.println("Server start");
+            displayEvent("Server start");
 
             while(servercontinue) {
                 displayEvent("Waiting connections on port " + this.port + "...");

@@ -46,7 +46,7 @@ public class Client{
             display(msg);
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
-            send(socket.getInetAddress() + ":" + socket.getPort() + " connected");
+            //send(socket.getInetAddress() + ":" + socket.getPort() + " connected");
 
             Thread receiveThread = new Thread(){
                 @Override
