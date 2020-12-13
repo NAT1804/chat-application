@@ -264,6 +264,17 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             }
         }
 
+        if (o == download) {
+            if (tf.getText().equals("")) {
+                JOptionPane.showMessageDialog(this, "You need to input file name to download!");
+                tf.requestFocus();
+            } else {
+                client.send("DOWNLOAD " + tf.getText());
+                tf.setText("");
+                //System.out.println("Start error");
+            }
+        }
+
         if (connected) {
             if (!tf.getText().equals("")) {
                 //System.out.println("End error");

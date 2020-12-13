@@ -81,6 +81,7 @@ class ClientHandler extends Thread {
 
             // Start the conversation
             String received = "";
+            int isStartSend = 0;
             while(true) {
                 try {
                     received = is.readUTF().trim();
@@ -91,38 +92,68 @@ class ClientHandler extends Thread {
                         downloadFile("./storage/server/" + received.substring(5));
                     }
 
-                    // if the message is private sent it to the given client.
-                    if (received.startsWith("@")) {
-                        String[] words = received.split("\\s", 2);
-                        if (words.length > 1 && words[1] != null) {
-                            words[1] = words[1].trim();
-                            if (!words[1].isEmpty()) {
+                    // turn on mode "DOWNLOAD"
+                    if (received.startsWith("DOWNLOAD")) {
+                        String[] parts = received.split("\\s");
+                        isStartSend = 1;
+                        if (parts.length == 2) {
+                            if (checkFileName(parts[1])) {
                                 synchronized (this) {
-                                    for (int i=0; i<maxClients; i++) {
-                                        if (clients[i] != null && clients[i] != this
-                                                && clients[i].clientName != null
-                                                && clients[i].clientName.equals(words[0])) {
-                                            clients[i].os.writeUTF("[" + name + " to you] " + words[1]);
-                                            //this.os.writeUTF(">" + name + ">" + words[1]);
-                                            break;
-                                        }
-                                        if (i == (maxClients - 1)) {
-                                            this.os.writeUTF(words[0] + " not online || " + words[0] + " not exists");
+                                    this.os.writeUTF("Download file " + parts[1] + " successfully");
+                                }
+                                displayMsg("[" + clientName.substring(1) + "] " + received);
+                                sendFile("./storage/server/" + parts[1]);
+                            } else {
+                                received = (parts[1] + " not exist");
+                                synchronized (this) {
+                                    this.os.writeUTF(received);
+                                }
+                                displayMsg("[" + clientName.substring(1) + "] File download request doesn't exist" );
+                            }
+                        } else {
+
+                        }
+                    }
+
+                    // if the message is private sent it to the given client.
+                    if (isStartSend == 0) { //avoid mode "DOWNLOAD"
+                        if (received.startsWith("@")) {
+                            String[] words = received.split("\\s", 2);
+                            if (words.length > 1 && words[1] != null) {
+                                words[1] = words[1].trim();
+                                if (!words[1].isEmpty()) {
+                                    synchronized (this) {
+                                        for (int i = 0; i < maxClients; i++) {
+                                            if (clients[i] != null && clients[i] != this
+                                                    && clients[i].clientName != null
+                                                    && clients[i].clientName.equals(words[0])) {
+                                                clients[i].os.writeUTF("[" + name + " to you] " + words[1]);
+                                                displayMsg("[" + name + " to " + clients[i].clientName.substring(1) + "] " + words[1]);
+                                                this.os.writeUTF(">" + clients[i].clientName.substring(1) + "> " + words[1]);
+                                                break;
+                                            }
+                                            if (i == (maxClients - 1)) {
+                                                this.os.writeUTF(words[0].substring(1) + " not online");
+                                                displayMsg("[" + this.clientName.substring(1) + " to " + words[0].substring(1) + "] " + words[0].substring(1) + " not online");
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    } else {
-                        // the message is public, broadcast it to all clients
-                        synchronized (this) {
-                            for (int i = 0; i < maxClients; i++) {
-                                if (clients[i] != null && clients[i].clientName != null && clients[i] != this) {
-                                    clients[i].os.writeUTF("[" + name + "] " + received);
+                        } else {
+                            // the message is public, broadcast it to all clients
+                            synchronized (this) {
+                                for (int i = 0; i < maxClients; i++) {
+                                    if (clients[i] != null && clients[i].clientName != null && clients[i] != this) {
+                                        clients[i].os.writeUTF("[" + name + "] " + received);
+                                    }
                                 }
+                                displayMsg("[" + name + " to everybody] " + received);
                             }
                         }
                     }
+                    // exit mode "DOWNLOAD"
+                    isStartSend = 0;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -135,7 +166,7 @@ class ClientHandler extends Thread {
                     }
                 }
             }
-            os.writeUTF("Bye");
+            os.writeUTF("Bye User");
 
             // clean up
             synchronized (this) {
@@ -146,8 +177,7 @@ class ClientHandler extends Thread {
                 }
             }
 
-            is.close();
-            os.close();
+            close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -186,10 +216,8 @@ class ClientHandler extends Thread {
             bis.read(contents, 0, size);
 
             os.write(contents);
-            //server.displayEvent("Sending file ... " + (current*100)/fileLength + "% complete!");
 
         }
-        //server.displayEvent("Length of file " + filename + " : " + fileLength + "B");
         os.flush();
     }
 
@@ -204,13 +232,8 @@ class ClientHandler extends Thread {
             byteRead = is.read(contents);
             bos.write(contents, 0, byteRead);
             size += byteRead;
-            //server.displayEvent("Downloading ..." + (size*100)/fileLength + "% complete!");
         }
-
-        //server.displayEvent("Length of file " + filename + " : " + fileLength + "B");
-
         bos.flush();
-        //fos.close();
     }
 
     public void close(){
