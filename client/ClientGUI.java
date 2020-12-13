@@ -1,3 +1,318 @@
-public class ClientGUI {
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.IOException;
 
+public class ClientGUI extends JFrame implements WindowListener, ActionListener {
+    private JLabel label;
+    private JTextField tf, tfServer, tfPort, tfFile;
+    private JButton connect, exit, create, upload, send, download;
+    private JTextArea ta, list;
+    private JComboBox comboBox;
+    private boolean connected;
+    private Client client;
+    private int port;
+    private String host;
+    private int firstInput;
+
+    public ClientGUI(String host, int port) {
+        super("Chat Client");
+        this.host = host;
+        this.port = port;
+        this.firstInput = 0;
+        buildGUI(host ,port);
+    }
+
+    private void buildGUI(String host, int port) {
+
+        /* --- The NorthPanel ---*/
+        JPanel northPanel = new JPanel(new GridLayout(1,1));
+        // Panel the server name and the port number
+        JPanel serverAndPort = new JPanel(new GridLayout(1,5, 1, 3));
+        // the two JTextField with default value for server address and port number
+        tfServer = new JTextField(host);
+        tfPort = new JTextField("" + port);
+        serverAndPort.add(new JLabel("Server Address:  ", SwingConstants.RIGHT));
+        serverAndPort.add(tfServer);
+        //serverAndPort.add(new JLabel(""));
+        serverAndPort.add(new JLabel("Port Number:  ", SwingConstants.RIGHT));
+        serverAndPort.add(tfPort);
+        serverAndPort.add(new JLabel(""));
+        northPanel.add(serverAndPort);
+        add(northPanel, BorderLayout.NORTH); // add north panel to the frame
+        /* --- end ---*/
+
+        /* --- The WestPanel ---*/
+        JPanel westPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcWest = new GridBagConstraints();
+        gbcWest.fill = GridBagConstraints.HORIZONTAL;
+//        gbcWest.weighty = 1;
+//        gbcWest.weightx = 1;
+        gbcWest.gridx = 0;
+        gbcWest.gridy = 0;
+        gbcWest.anchor = GridBagConstraints.PAGE_START;
+        connect = new JButton("Connect");
+        connect.addActionListener(this);
+        westPanel.add(connect, gbcWest);
+        gbcWest.gridx = 0;
+        gbcWest.gridy = 1;
+        gbcWest.anchor = GridBagConstraints.PAGE_START;
+        exit = new JButton("Exit");
+        exit.addActionListener(this);
+        exit.setEnabled(false);
+        westPanel.add(exit, gbcWest);
+        gbcWest.gridx = 0;
+        gbcWest.gridy = 2;
+        gbcWest.anchor = GridBagConstraints.PAGE_END;
+        create = new JButton("Create Group");
+        create.addActionListener(this);
+        create.setEnabled(false);
+        westPanel.add(create, gbcWest);
+        gbcWest.gridy = 3;
+        download = new JButton("Download");
+        download.addActionListener(this);
+        download.setEnabled(false);
+        westPanel.add(download, gbcWest);
+        add(westPanel, BorderLayout.LINE_START);
+        /* --- end ---*/
+
+        /* --- The CenterPanel ---*/
+        JPanel centerPanel = new JPanel(new GridLayout(2,1));
+        centerPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcCentral = new GridBagConstraints();
+        gbcCentral.fill = GridBagConstraints.BOTH;
+        gbcCentral.gridx = 0;
+        gbcCentral.gridy = 0;
+        centerPanel.add(new JLabel("Chat room\n"), gbcCentral);
+        ta = new JTextArea("Welcome to the Chat room!\n", 80, 1);
+        ta.setLineWrap(true);
+        ta.setFont(new Font("Serif", Font.PLAIN, 15));
+        gbcCentral.ipady = 435;
+        gbcCentral.ipadx = 310;
+        gbcCentral.gridx = 0;
+        gbcCentral.gridy = 1;
+        centerPanel.add(new JScrollPane(ta), gbcCentral);
+        ta.setEditable(false);
+        add(centerPanel, BorderLayout.CENTER);
+        centerPanel.setPreferredSize(new Dimension(200, 400));
+        /* --- end ---*/
+
+        /* --- The EastPanel ---*/
+        JPanel eastPanel = new JPanel();
+        eastPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcEast = new GridBagConstraints();
+        gbcEast.fill = GridBagConstraints.VERTICAL;
+        gbcEast.gridx = 0;
+        gbcEast.gridy = 0;
+        gbcEast.gridwidth = GridBagConstraints.REMAINDER;
+        JLabel labelListUser = new JLabel(" List user online ");
+        labelListUser.setSize(new Dimension(150, 20));
+        eastPanel.add(labelListUser, gbcEast);
+        list = new JTextArea(80, 1);
+        list.setFont(new Font("Serif", Font.PLAIN, 16));
+        gbcEast.fill = GridBagConstraints.HORIZONTAL;
+        gbcEast.ipady = 435;
+        gbcEast.ipadx = 120;
+        gbcEast.gridx = 0;
+        gbcEast.gridy = 1;
+        gbcEast.insets = new Insets(0,0,0,5);
+        gbcEast.gridwidth = GridBagConstraints.REMAINDER;
+        eastPanel.add(new JScrollPane(list), gbcEast);
+        list.setEditable(false);
+        add(eastPanel, BorderLayout.LINE_END);
+        /* --- end ---*/
+
+        /* --- The SouthPanel ---*/
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcSouth = new GridBagConstraints();
+        gbcSouth.fill = GridBagConstraints.HORIZONTAL;
+        gbcSouth.gridx = 0;
+        gbcSouth.gridy = 0;
+        gbcSouth.gridwidth = 1;
+        upload = new JButton("Upload");
+        upload.addActionListener(this);
+        upload.setEnabled(false);
+        southPanel.add(upload, gbcSouth);
+        gbcSouth.gridy = 0;
+        gbcSouth.gridx = 1;
+        gbcSouth.gridwidth = 4;
+        gbcSouth.ipadx = 425;
+        gbcSouth.fill = GridBagConstraints.HORIZONTAL;
+        tfFile = new JTextField("No file selected");
+        tfFile.setEditable(false);
+        southPanel.add(tfFile, gbcSouth);
+        gbcSouth.gridx = 5;
+        gbcSouth.ipadx = 0;
+        gbcSouth.gridwidth = 1;
+        send = new JButton("Send");
+        send.addActionListener(this);
+        send.setEnabled(false);
+        southPanel.add(send, gbcSouth);
+        gbcSouth.gridx = 0;
+        gbcSouth.gridy = 1;
+        gbcSouth.gridwidth = 2;
+        label = new JLabel("Enter your message below", SwingConstants.LEFT);
+        southPanel.add(label, gbcSouth);
+        gbcSouth.gridy = 2;
+        gbcSouth.gridwidth = 1;
+        gbcSouth.fill = GridBagConstraints.HORIZONTAL;
+        gbcSouth.insets = new Insets(0,0,10,0);
+        String option[] = {"Everybody"};
+        comboBox = new JComboBox(option);
+        comboBox.setEnabled(false);
+        southPanel.add(comboBox, gbcSouth);
+        gbcSouth.gridx = 1;
+        gbcSouth.gridy = 2;
+        gbcSouth.gridwidth = 5;
+        gbcSouth.gridheight = 3;
+        gbcSouth.ipadx = 425;
+        gbcSouth.fill = GridBagConstraints.BOTH;
+        tf = new JTextField("");
+        tf.setBackground(Color.WHITE);
+        tf.setEditable(false);
+        southPanel.add(tf, gbcSouth);
+        add(southPanel, BorderLayout.SOUTH);
+        /* --- end ---*/
+
+        /*--- frame ---*/
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(600, 600);
+        setVisible(true);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        /* --- end ---*/
+    }
+
+    public void appendRoom(String str) {
+        ta.append(str);
+        ta.setCaretPosition(ta.getText().length() - 1);
+    }
+
+    public void appendUser(String str) {
+        list.append(str);
+        list.setCaretPosition(list.getText().length() - 1);
+    }
+
+    public void connectionFailed() {
+        connect.setEnabled(true);
+        exit.setEnabled(false);
+        create.setEnabled(false);
+        upload.setEnabled(false);
+        send.setEnabled(false);
+        comboBox.setEnabled(false);
+        download.setEnabled(false);
+        //label.setText("Enter your message below");
+        tf.setEditable(false);
+        tf.setText("");
+        // let the user change them
+        tfServer.setEditable(true);
+        tfPort.setEditable(true);
+        // don't react to a <CR> after the username
+        tf.removeActionListener(this);
+        connected = false;
+        firstInput = 0;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+
+        if (o == exit) {
+            client.send("/quit");
+            return;
+        }
+
+        if (connected) {
+            if (!tf.getText().equals("")) {
+                //System.out.println("End error");
+                client.send(tf.getText());
+                tf.setText("");
+                if (firstInput == 0) firstInput = 1;
+            }
+        }
+
+        // must be input name in first input
+        if (firstInput == 1) {
+            create.setEnabled(true);
+            upload.setEnabled(true);
+            send.setEnabled(true);
+            comboBox.setEnabled(true);
+            download.setEnabled(true);
+            firstInput = 2;
+        }
+
+        if (o == connect) {
+            String hostAddr = tfServer.getText().trim();
+            if (hostAddr.length() == 0) return;
+            String portNumber = tfPort.getText().trim();
+            if (portNumber.length() == 0) return;
+            int portSelected = 0;
+            try {
+                portSelected = Integer.parseInt(portNumber);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            client = new Client(hostAddr, portSelected, this);
+            if (!client.init()) return;
+            tf.setEditable(true);
+            tf.setText("");
+            label.setText("Enter your message below");
+            connected = true;
+
+            // disable login button
+            connect.setEnabled(false);
+            exit.setEnabled(true);
+            // disable the Server and Port JTextField
+            tfServer.setEditable(false);
+            tfPort.setEditable(false);
+            // Action listener for when the user enter a message
+            tf.addActionListener(this);
+            tf.requestFocus();
+        }
+    }
+
+    public static void main(String[] args) {
+        new ClientGUI("localhost", 8080);
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
 }
