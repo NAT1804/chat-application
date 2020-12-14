@@ -56,8 +56,12 @@ public class Client{
                         while(true) {
                             received = dis.readUTF().trim();
 
-                            if (received.indexOf("online") >= 0)
+                            if (received.indexOf("online") >= 0) {
                                 displayUser(received);
+                            }
+                            else if (received.indexOf("exit") >= 0) {
+                                removeUser(received);
+                            }
                             else {
                                 String words[] = received.split("\\s");
                                 if (received.startsWith("Download")) {
@@ -94,6 +98,11 @@ public class Client{
     public void displayUser(String msg) {
         if (clientGUI != null)
             clientGUI.appendUser(msg + "\n");
+    }
+
+    public void removeUser(String msg) {
+        if (clientGUI != null)
+            clientGUI.delUser(msg);
     }
 
     public void send(String tosend) {

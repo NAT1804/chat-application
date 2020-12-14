@@ -37,7 +37,7 @@ class ClientHandler extends Thread {
                     if (name.indexOf('@') == -1) {
                         break;
                     } else {
-                        os.writeUTF("The name should not contain '@' character.\n");
+                        os.writeUTF("The name should not contain '@' character.");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -45,8 +45,8 @@ class ClientHandler extends Thread {
             }
 
             //Welcome
-            os.writeUTF("Welcome " + name + " to our chat room. To leave enter /quit in a new line.\n");
-            server.displayEvent("User " + name + " connect to Server");
+            os.writeUTF("Welcome " + name + " to our chat room");
+            server.displayEvent("User " + name + " have connected to the Server");
 
             synchronized (this) {
                 for (int i=0; i<maxClients; i++) {
@@ -57,17 +57,9 @@ class ClientHandler extends Thread {
                 }
 
                 // announce the list of users who are online
-                String notification = "";
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this) {
-                        notification += (clients[i].clientName.substring(1) + " online\n");
-                    }
-                    if (i == (maxClients - 1)) {
-                        if (!notification.equals("")) {
-                            this.os.writeUTF(notification);
-                        } else {
-                            this.os.writeUTF(notification + "No user online");
-                        }
+                        this.os.writeUTF(clients[i].clientName.substring(1) + " online");
                     }
                 }
 
@@ -75,8 +67,10 @@ class ClientHandler extends Thread {
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this) {
                         clients[i].os.writeUTF("--- A new user " + name + " entered the chat room ---");
+                        clients[i].os.writeUTF(name + " online");
                     }
                 }
+
             }
 
             // Start the conversation
@@ -85,11 +79,14 @@ class ClientHandler extends Thread {
             while(true) {
                 try {
                     received = is.readUTF().trim();
-
                     if (received.startsWith("/quit")) break;
 
-                    if (received.startsWith("SEND")) {
-                        downloadFile("./storage/server/" + received.substring(5));
+                    if (received.indexOf("SEND") >= 0) {
+                        String words[] = received.split("\\s");
+                        if (words.length == 2)
+                            downloadFile("./storage/server/" + words[1]);
+                        else
+                            downloadFile("./storage/server/" + words[2]);
                     }
 
                     // turn on mode "DOWNLOAD"
@@ -110,8 +107,6 @@ class ClientHandler extends Thread {
                                 }
                                 displayMsg("[" + clientName.substring(1) + "] File download request doesn't exist" );
                             }
-                        } else {
-
                         }
                     }
 
@@ -129,11 +124,11 @@ class ClientHandler extends Thread {
                                                     && clients[i].clientName.equals(words[0])) {
                                                 clients[i].os.writeUTF("[" + name + " to you] " + words[1]);
                                                 displayMsg("[" + name + " to " + clients[i].clientName.substring(1) + "] " + words[1]);
-                                                this.os.writeUTF(">" + clients[i].clientName.substring(1) + "> " + words[1]);
+                                                this.os.writeUTF("[you to " + clients[i].clientName.substring(1) + "] " + words[1]);
                                                 break;
                                             }
                                             if (i == (maxClients - 1)) {
-                                                this.os.writeUTF(words[0].substring(1) + " not online");
+                                                this.os.writeUTF(words[0].substring(1) + " not connected");
                                                 displayMsg("[" + this.clientName.substring(1) + " to " + words[0].substring(1) + "] " + words[0].substring(1) + " not online");
                                             }
                                         }
@@ -144,7 +139,7 @@ class ClientHandler extends Thread {
                             // the message is public, broadcast it to all clients
                             synchronized (this) {
                                 for (int i = 0; i < maxClients; i++) {
-                                    if (clients[i] != null && clients[i].clientName != null && clients[i] != this) {
+                                    if (clients[i] != null && clients[i].clientName != null) {
                                         clients[i].os.writeUTF("[" + name + "] " + received);
                                     }
                                 }
@@ -163,10 +158,13 @@ class ClientHandler extends Thread {
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this && clients[i].clientName != null) {
                         clients[i].os.writeUTF("--- The user " + name + " is leaving the chat room! ---");
+                        clients[i].os.writeUTF(name + " exit");
                     }
                 }
+
             }
             os.writeUTF("Bye User");
+            server.displayEvent("User " + this.clientName.substring(1) + " loses connection with Server");
 
             // clean up
             synchronized (this) {
@@ -245,5 +243,4 @@ class ClientHandler extends Thread {
             e.printStackTrace();
         }
     }
-
 }

@@ -56,6 +56,7 @@ public class Server {
                 if (i == maxClients) {
                     DataOutputStream os = new DataOutputStream(clientSocket.getOutputStream());
                     os.writeUTF("Server too busy. Try later.");
+                    displayEvent("Server too busy. Try later.");
                     os.close();
                     clientSocket.close();
                 }
@@ -69,7 +70,9 @@ public class Server {
     protected void stop() {
         servercontinue = false;
         try {
+
             new Socket("localhost", port);
+            serverSocket.close();
         }
         catch(Exception e) {
             e.printStackTrace();

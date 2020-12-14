@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ClientGUI extends JFrame implements WindowListener, ActionListener {
     private JLabel label;
     private JTextField tf, tfUsername, tfServer, tfPort, tfFile;
-    private JButton connect, exit, create, upload, send, download;
+    private JButton connect, exit, upload, send, download;
     private JTextArea ta, list;
     private JComboBox comboBox;
     private boolean connected;
@@ -54,6 +54,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
 //        gbcWest.weightx = 1;
         gbcWest.gridx = 0;
         gbcWest.gridy = 0;
+        gbcWest.gridwidth = 1;
         gbcWest.anchor = GridBagConstraints.PAGE_START;
         connect = new JButton("Connect");
         connect.addActionListener(this);
@@ -65,14 +66,15 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         exit.addActionListener(this);
         exit.setEnabled(false);
         westPanel.add(exit, gbcWest);
+//        gbcWest.gridx = 0;
+//        gbcWest.gridy = 2;
+//        gbcWest.anchor = GridBagConstraints.PAGE_END;
+//        create = new JButton("Create Group");
+//        create.addActionListener(this);
+//        create.setEnabled(false);
+//        westPanel.add(create, gbcWest);
         gbcWest.gridx = 0;
         gbcWest.gridy = 2;
-        gbcWest.anchor = GridBagConstraints.PAGE_END;
-        create = new JButton("Create Group");
-        create.addActionListener(this);
-        create.setEnabled(false);
-        westPanel.add(create, gbcWest);
-        gbcWest.gridy = 3;
         download = new JButton("Download");
         download.addActionListener(this);
         download.setEnabled(false);
@@ -116,7 +118,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         list.setFont(new Font("Serif", Font.PLAIN, 16));
         gbcEast.fill = GridBagConstraints.HORIZONTAL;
         gbcEast.ipady = 435;
-        gbcEast.ipadx = 120;
+        gbcEast.ipadx = 140;
         gbcEast.gridx = 0;
         gbcEast.gridy = 1;
         gbcEast.insets = new Insets(0,0,0,5);
@@ -194,14 +196,21 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     }
 
     public void appendUser(String str) {
+        String [] words = str.split("\\s");
+        comboBox.addItem(words[0]);
         list.append(str);
         list.setCaretPosition(list.getText().length() - 1);
+    }
+
+    public void delUser(String str) {
+        String [] words = str.split("\\s");
+        comboBox.removeItem(words[0]);
     }
 
     public void connectionFailed() {
         connect.setEnabled(true);
         exit.setEnabled(false);
-        create.setEnabled(false);
+        //create.setEnabled(false);
         upload.setEnabled(false);
         send.setEnabled(false);
         comboBox.setEnabled(false);
@@ -223,11 +232,13 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
 
+        // Button to
         if (o == exit) {
             client.send("/quit");
             return;
         }
 
+        // Button to selecting file
         if (o == upload) {
             // create an object of JFileChooser class
             JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
@@ -247,6 +258,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             }
         }
 
+        // Button to sending file
         if (o == send) {
             if (tfFile.getText().equals("No file selected")) {
                 JOptionPane.showMessageDialog(this, "You need to select the file to send!");
@@ -255,8 +267,14 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
                     String dir = tfFile.getText();
                     int lastIndex = dir.lastIndexOf('\\');
                     String filename = dir.substring(lastIndex+1);
-                    client.send("SEND " + filename);
-                    client.sendFile(tfFile.getText());
+                    String target = (String) comboBox.getSelectedItem();
+                    if (target.equals("Everybody")) {
+                        client.send("SEND " + filename);
+                    } else {
+                        client.send("@" + target + " SEND " + filename);
+                    }
+
+                    client.sendFile(dir);
                     tfFile.setText("No file selected");
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -264,6 +282,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             }
         }
 
+        // Button to downloading
         if (o == download) {
             if (tf.getText().equals("")) {
                 JOptionPane.showMessageDialog(this, "You need to input file name to download!");
@@ -271,29 +290,29 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             } else {
                 client.send("DOWNLOAD " + tf.getText());
                 tf.setText("");
-                //System.out.println("Start error");
             }
         }
 
+        // Enter message in Textfield tf
         if (connected) {
-            if (!tf.getText().equals("")) {
-                //System.out.println("End error");
-                client.send(tf.getText());
-                tf.setText("");
-                //if (firstInput == 0) firstInput = 1;
+            String target = (String) comboBox.getSelectedItem();
+            switch (target) {
+                case "Everybody":
+                    if (!tf.getText().equals("")) {
+                        client.send(tf.getText());
+                        tf.setText("");
+                    }
+                    break;
+                default:
+                    if (!tf.getText().equals("")) {
+                        client.send("@" + target + " " + tf.getText());
+                        tf.setText("");
+                    }
+                    break;
             }
         }
 
-        // must be input name in first input
-//        if (firstInput == 1) {
-//            create.setEnabled(true);
-//            upload.setEnabled(true);
-//            send.setEnabled(true);
-//            comboBox.setEnabled(true);
-//            download.setEnabled(true);
-//            firstInput = 2;
-//        }
-
+        // Button to connecting with Server
         if (o == connect) {
             String hostAddr = tfServer.getText().trim();
             if (hostAddr.length() == 0) {
@@ -333,7 +352,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             // disable login button and enable other buttons
             connect.setEnabled(false);
             exit.setEnabled(true);
-            create.setEnabled(true);
+            //create.setEnabled(true);
             upload.setEnabled(true);
             send.setEnabled(true);
             comboBox.setEnabled(true);
@@ -355,7 +374,17 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
 
     @Override
     public void windowClosing(WindowEvent e) {
-
+        if(client != null) {
+            try {
+                client.send("/quit"); // ask the server to close the conection
+            } catch(Exception eClose) {
+                eClose.printStackTrace();
+            }
+            System.out.println("Exit");
+        }
+        // dispose the frame
+        dispose();
+        System.exit(0);
     }
 
     @Override

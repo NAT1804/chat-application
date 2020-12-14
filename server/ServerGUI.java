@@ -40,8 +40,6 @@ public class ServerGUI extends JFrame implements WindowListener, ActionListener 
         center.add(new JScrollPane(event));
         add(center);
 
-
-
         addWindowListener(this);
         setSize(400, 600);
         setResizable(false);
@@ -50,7 +48,7 @@ public class ServerGUI extends JFrame implements WindowListener, ActionListener 
 
     public void appendEvent(String s) {
         event.append(s);
-        event.setCaretPosition(chat.getText().length() - 1);
+        event.setCaretPosition(event.getText().length() - 1);
     }
 
     public void appendRoom(String s) {
@@ -75,7 +73,7 @@ public class ServerGUI extends JFrame implements WindowListener, ActionListener 
             appendEvent("Invalid port number");
             return;
         }
-        // ceate a new Server
+        // create a new Server
         server = new Server(port, this);
         // and start it as a thread
         new ServerRunning().start();
