@@ -232,7 +232,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
 
-        // Button to
+        // Button to exiting
         if (o == exit) {
             client.send("/quit");
             return;

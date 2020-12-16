@@ -1,10 +1,14 @@
-Client1 kết nối với Server
-Server gửi tới Client1 'Enter your name:' 
-Client1: [Nhap ten]
-Client1: message //không có chỉ định tới client khác sẽ gửi message tới tất cả các client đang online.
-Client1: @Client2 message
-nếu Client2 online
-    Client2 : [Client1 to you] message
-nếu Client2 không online hoặc không tồn tại
-    Client1: Client2 not online || CLient2 not exists
-Client1: /quit
+Link báo cáo chi tiết: https://bom.to/pghGgLLB
+
+Giao thức được thiết kế trên console, khi thêm giao diện các dòng lệnh sẽ chuyển thành các chức năng trên giao diện
+Client1 connect với Server
+Client2 connect với Server
+Client1: msg
+Client2: [Client1] msg
+Client1: @Client2 msg
+Client2: [Client1 to you] msg
+Client1: SEND filename
+Client2: [Client1] SEND filename
+Client2: DOWNLOAD filename
+Nếu filename tồn tại thì Server gửi tới Client2 : Download file filename successfully
+Nếu filename không tồn tại thì Server gửi tới Client2: filename not exist
