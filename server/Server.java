@@ -13,6 +13,7 @@ public class Server {
     private boolean servercontinue = false;
     private ServerGUI serverGUI = null;
     private SimpleDateFormat sdf = null;
+//    private FileWriter file = null;
 
     public Server(int port) {
         this.port = port;
@@ -34,8 +35,12 @@ public class Server {
 
     public void init() {
         servercontinue = true;
+
         try {
             serverSocket = new ServerSocket(port);
+//            SimpleDateFormat formatTime = new SimpleDateFormat("dd-M-yyyy-hh:mm:ss");
+//            String time = "[" + formatTime.format(Calendar.getInstance().getTime()) + "]";
+//            file = new FileWriter("./storage/logs/log" + time + ".txt");
             displayEvent("Server start");
 
             while(servercontinue) {
@@ -73,6 +78,7 @@ public class Server {
 
             new Socket("localhost", port);
             serverSocket.close();
+//            file.close();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -81,8 +87,14 @@ public class Server {
 
     public void displayEvent(String msg) {
         String mess = "[" + sdf.format(Calendar.getInstance().getTime()) + "] " + msg;
-        if (serverGUI != null)
+        if (serverGUI != null) {
             serverGUI.appendEvent(mess + "\n");
+//            try {
+////                file.write(mess + "\n");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+        }
     }
 
     public static void main(String[] args) {

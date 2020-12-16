@@ -82,7 +82,13 @@ class ClientHandler extends Thread {
                     if (received.startsWith("/quit")) break;
 
                     if (received.indexOf("SEND") >= 0) {
-                        String words[] = received.split("\\s");
+                        String words[];
+                        if(received.startsWith("@")) {
+                            words = received.split("\\s", 3);
+                        } else {
+                            words = received.split("\\s", 2);
+                        }
+
                         if (words.length == 2)
                             downloadFile("./storage/server/" + words[1]);
                         else
@@ -91,12 +97,12 @@ class ClientHandler extends Thread {
 
                     // turn on mode "DOWNLOAD"
                     if (received.startsWith("DOWNLOAD")) {
-                        String[] parts = received.split("\\s");
+                        String[] parts = received.split("\\s", 2);
                         isStartSend = 1;
-                        if (parts.length == 2) {
+//                        if (parts.length == 2) {
                             if (checkFileName(parts[1])) {
                                 synchronized (this) {
-                                    this.os.writeUTF("Download file " + parts[1] + " successfully");
+                                    this.os.writeUTF("Download file successfully " + parts[1]);
                                 }
                                 displayMsg("[" + clientName.substring(1) + "] " + received);
                                 sendFile("./storage/server/" + parts[1]);
@@ -107,7 +113,7 @@ class ClientHandler extends Thread {
                                 }
                                 displayMsg("[" + clientName.substring(1) + "] File download request doesn't exist" );
                             }
-                        }
+//                        }
                     }
 
                     // if the message is private sent it to the given client.

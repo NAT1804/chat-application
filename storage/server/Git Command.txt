@@ -1,0 +1,7 @@
+- Tạo branch mới không chuyển nhánh: git branch tên_branch 
+	lưu ý: tên branch thường đặt type/number_issue-description
+- Kiểm tra các branch đang có: git branch
+- Chuyển nhánh sang branch khác : git checkout tên_branch
+- Tạo branch mới và rẽ nhánh luôn: git checkout -b tên_branch
+- Xóa branch : git branch -D tên_branch
+- Kiểm tra code trên local : git fetch origin tên_branch

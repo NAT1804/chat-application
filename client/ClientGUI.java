@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ClientGUI extends JFrame implements WindowListener, ActionListener {
     private JLabel label;
     private JTextField tf, tfUsername, tfServer, tfPort, tfFile;
-    private JButton connect, exit, upload, send, download;
+    private JButton connect, exit, upload, send, download, enter;
     private JTextArea ta, list;
     private JComboBox comboBox;
     private boolean connected;
@@ -170,7 +170,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         southPanel.add(comboBox, gbcSouth);
         gbcSouth.gridx = 1;
         gbcSouth.gridy = 2;
-        gbcSouth.gridwidth = 5;
+        gbcSouth.gridwidth = 4;
         gbcSouth.gridheight = 3;
         gbcSouth.ipadx = 425;
         gbcSouth.fill = GridBagConstraints.BOTH;
@@ -178,6 +178,11 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         tf.setBackground(Color.WHITE);
         tf.setEditable(false);
         southPanel.add(tf, gbcSouth);
+        gbcSouth.gridy = 2;
+        gbcSouth.gridx = 5;
+        gbcSouth.ipadx = 0;
+        enter = new JButton("Enter");
+        southPanel.add(enter, gbcSouth);
         add(southPanel, BorderLayout.SOUTH);
         /* --- end ---*/
 
@@ -214,6 +219,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         upload.setEnabled(false);
         send.setEnabled(false);
         comboBox.setEnabled(false);
+        comboBox.removeAllItems();
         download.setEnabled(false);
         //label.setText("Enter your message below");
         tf.setEditable(false);
@@ -265,7 +271,12 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             } else {
                 try {
                     String dir = tfFile.getText();
-                    int lastIndex = dir.lastIndexOf('\\');
+                    int lastIndex;
+                    if (dir.indexOf('\\') >= 0) {
+                        lastIndex = dir.lastIndexOf('\\');
+                    } else {
+                        lastIndex = dir.lastIndexOf('/');
+                    }
                     String filename = dir.substring(lastIndex+1);
                     String target = (String) comboBox.getSelectedItem();
                     if (target.equals("Everybody")) {
@@ -356,6 +367,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             upload.setEnabled(true);
             send.setEnabled(true);
             comboBox.setEnabled(true);
+            comboBox.addItem("Everybody");
             download.setEnabled(true);
             // disable the Server and Port JTextField
             tfServer.setEditable(false);

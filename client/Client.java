@@ -63,9 +63,9 @@ public class Client{
                                 removeUser(received);
                             }
                             else {
-                                String words[] = received.split("\\s");
+                                String words[] = received.split("\\s", 4);
                                 if (received.startsWith("Download")) {
-                                    downloadFile("./storage/client/" + words[2]);
+                                    downloadFile("./storage/client/" + words[3]);
                                 }
                                 display(received);
                                 if (received.equals("Bye User")) {
