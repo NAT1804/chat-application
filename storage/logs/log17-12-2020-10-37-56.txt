@@ -1,0 +1,6 @@
+[10:37:56] Server start
+[10:37:56] Waiting connections on port 8080...
+[10:37:58] Waiting connections on port 8080...
+[10:37:58] User a have connected to the Server
+[10:38:46] [a to everybody] hello
+[10:39:36] User a loses connection with Server

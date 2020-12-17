@@ -1,0 +1,10 @@
+[09:08:52] Server start
+[09:08:52] Waiting connections on port 8080...
+[09:08:59] Waiting connections on port 8080...
+[09:08:59] User tuan have connected to the Server
+[09:09:08] Waiting connections on port 8080...
+[09:09:08] User hoang have connected to the Server
+[09:10:27] [tuan to hoang] SEND Git Command.txt
+[09:10:43] [hoang] DOWNLOAD Git Command.txt
+[09:11:27] User hoang loses connection with Server
+[09:11:27] User tuan loses connection with Server

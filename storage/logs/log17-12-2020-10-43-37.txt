@@ -1,0 +1,11 @@
+[10:43:37] Server start
+[10:43:37] Waiting connections on port 8080...
+[10:43:40] Waiting connections on port 8080...
+[10:43:40] User 'a' have connected to the Server
+[10:43:44] [a to everybody] abc
+[10:43:58] Waiting connections on port 8080...
+[10:43:58] User 'b' have connected to the Server
+[10:44:19] [a to b] 2
+[10:44:25] [b to a] hii
+[10:44:28] User 'a' loses connection with Server
+[10:44:29] User 'b' loses connection with Server

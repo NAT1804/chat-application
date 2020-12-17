@@ -183,6 +183,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         gbcSouth.ipadx = 0;
         enter = new JButton("Enter");
         enter.setEnabled(false);
+        enter.addActionListener(this);
         southPanel.add(enter, gbcSouth);
         add(southPanel, BorderLayout.SOUTH);
         /* --- end ---*/
@@ -211,6 +212,10 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     public void delUser(String str) {
         String [] words = str.split("\\s");
         comboBox.removeItem(words[0]);
+        String userStr = words[0] + " online\n";
+        int l1 = list.getText().indexOf(userStr);
+        int l2 = userStr.length();
+        list.replaceRange(null, l1, l2+l1);
     }
 
     public void connectionFailed() {
@@ -226,6 +231,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         //label.setText("Enter your message below");
         tf.setEditable(false);
         tf.setText("");
+        list.setText("");
         // let the user change them
         tfServer.setEditable(true);
         tfPort.setEditable(true);
@@ -312,14 +318,24 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             switch (target) {
                 case "Everybody":
                     if (!tf.getText().equals("")) {
-                        client.send(tf.getText());
-                        tf.setText("");
+                        if (o == enter) {
+                            client.send(tf.getText());
+                            tf.setText("");
+                        } else {
+                            client.send(tf.getText());
+                            tf.setText("");
+                        }
                     }
                     break;
                 default:
                     if (!tf.getText().equals("")) {
-                        client.send("@" + target + " " + tf.getText());
-                        tf.setText("");
+                        if (o == enter) {
+                            client.send("@" + target + " " + tf.getText());
+                            tf.setText("");
+                        } else {
+                            client.send("@" + target + " " + tf.getText());
+                            tf.setText("");
+                        }
                     }
                     break;
             }
@@ -394,7 +410,6 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             } catch(Exception eClose) {
                 eClose.printStackTrace();
             }
-            System.out.println("Exit");
         }
         // dispose the frame
         dispose();

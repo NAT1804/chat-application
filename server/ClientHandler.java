@@ -45,8 +45,8 @@ class ClientHandler extends Thread {
             }
 
             //Welcome
-            os.writeUTF("Welcome " + name + " to our chat room");
-            server.displayEvent("User " + name + " have connected to the Server");
+            os.writeUTF("Welcome '" + name + "' to our chat room");
+            server.displayEvent("User '" + name + "' have connected to the Server");
 
             synchronized (this) {
                 for (int i=0; i<maxClients; i++) {
@@ -66,7 +66,7 @@ class ClientHandler extends Thread {
                 // notice that new users are online
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this) {
-                        clients[i].os.writeUTF("--- A new user " + name + " entered the chat room ---");
+                        clients[i].os.writeUTF("--- New user '" + name + "' entered the chat room ---");
                         clients[i].os.writeUTF(name + " online");
                     }
                 }
@@ -163,14 +163,14 @@ class ClientHandler extends Thread {
             synchronized (this) {
                 for (int i=0; i<maxClients; i++) {
                     if (clients[i] != null && clients[i] != this && clients[i].clientName != null) {
-                        clients[i].os.writeUTF("--- The user " + name + " is leaving the chat room! ---");
+                        clients[i].os.writeUTF("--- The user '" + name + "' is leaving the chat room! ---");
                         clients[i].os.writeUTF(name + " exit");
                     }
                 }
 
             }
             os.writeUTF("Bye User");
-            server.displayEvent("User " + this.clientName.substring(1) + " loses connection with Server");
+            server.displayEvent("User '" + this.clientName.substring(1) + "' loses connection with Server");
 
             // clean up
             synchronized (this) {
