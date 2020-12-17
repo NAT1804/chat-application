@@ -189,8 +189,14 @@ class ClientHandler extends Thread {
 
     private void displayMsg(String msg) {
         String mess = "[" + server.getSdf().format(Calendar.getInstance().getTime()) + "] " + msg;
-        if (server.getServerGUI() != null)
-            server.getServerGUI().appendRoom(mess+"\n");
+        if (server.getServerGUI() != null) {
+            server.getServerGUI().appendRoom(mess + "\n");
+            try {
+                server.getFile().write(mess + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean checkFileName(String filename) {

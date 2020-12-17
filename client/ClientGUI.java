@@ -182,6 +182,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         gbcSouth.gridx = 5;
         gbcSouth.ipadx = 0;
         enter = new JButton("Enter");
+        enter.setEnabled(false);
         southPanel.add(enter, gbcSouth);
         add(southPanel, BorderLayout.SOUTH);
         /* --- end ---*/
@@ -220,6 +221,7 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         send.setEnabled(false);
         comboBox.setEnabled(false);
         comboBox.removeAllItems();
+        comboBox.addItem("Everybody");
         download.setEnabled(false);
         //label.setText("Enter your message below");
         tf.setEditable(false);
@@ -367,8 +369,8 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             upload.setEnabled(true);
             send.setEnabled(true);
             comboBox.setEnabled(true);
-            comboBox.addItem("Everybody");
             download.setEnabled(true);
+            enter.setEnabled(true);
             // disable the Server and Port JTextField
             tfServer.setEditable(false);
             tfPort.setEditable(false);
