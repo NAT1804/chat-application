@@ -37,7 +37,8 @@ class ClientHandler extends Thread {
                     if (name.indexOf('@') == -1) {
                         break;
                     } else {
-                        os.writeUTF("The name should not contain '@' character.");
+                        //os.writeUTF("The name should not contain '@' character.");
+                        server.displayEvent("A client has entered the wrong username");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

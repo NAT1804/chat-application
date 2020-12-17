@@ -367,6 +367,12 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
                 tfUsername.requestFocus();
                 return;
             }
+            if (username.indexOf('@') >= 0) {
+                JOptionPane.showMessageDialog(this, "User name should not contain '@' character.");
+                tfUsername.setText("");
+                tfUsername.requestFocus();
+                return;
+            }
             client = new Client(hostAddr, portSelected, this);
             if (!client.init()) return;
 

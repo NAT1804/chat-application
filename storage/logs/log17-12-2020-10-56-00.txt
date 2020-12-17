@@ -1,0 +1,6 @@
+[10:56:00] Server start
+[10:56:00] Waiting connections on port 8080...
+[10:56:42] Waiting connections on port 8080...
+[10:56:42] User 'tuan' have connected to the Server
+[10:56:59] [tuan to everybody] kiem tra username ok
+[10:57:04] User 'tuan' loses connection with Server
