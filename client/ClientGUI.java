@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ClientGUI extends JFrame implements WindowListener, ActionListener {
     private JLabel label;
     private JTextField tf, tfUsername, tfServer, tfPort, tfFile;
-    private JButton connect, exit, upload, send, download, enter;
+    private JButton connect, exit, upload, send, download, enter, createGroup, joinGroup;
     private JTextArea ta, list;
     private JComboBox comboBox;
     private boolean connected;
@@ -79,6 +79,18 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         download.addActionListener(this);
         download.setEnabled(false);
         westPanel.add(download, gbcWest);
+        gbcWest.gridx = 0;
+        gbcWest.gridy = 3;
+        createGroup = new JButton("Create Group");
+        createGroup.addActionListener(this);
+        createGroup.setEnabled(false);
+        westPanel.add(createGroup, gbcWest);
+        gbcWest.gridx = 0;
+        gbcWest.gridy = 4;
+        joinGroup = new JButton("Join Group");
+        joinGroup.addActionListener(this);
+        joinGroup.setEnabled(false);
+        westPanel.add(joinGroup, gbcWest);
         add(westPanel, BorderLayout.LINE_START);
         /* --- end ---*/
 
@@ -203,8 +215,9 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
     }
 
     public void appendUser(String str) {
-        String [] words = str.split("\\s");
-        comboBox.addItem(words[0]);
+//        String [] words = str.split("\\s");
+        String name = str.substring(0, str.length()-7);
+        comboBox.addItem(name);
         list.append(str);
         list.setCaretPosition(list.getText().length() - 1);
     }
@@ -228,6 +241,8 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
         comboBox.removeAllItems();
         comboBox.addItem("Everybody");
         download.setEnabled(false);
+        createGroup.setEnabled(false);
+        joinGroup.setEnabled(false);
         //label.setText("Enter your message below");
         tf.setEditable(false);
         tf.setText("");
@@ -312,6 +327,29 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             }
         }
 
+        // Button to creating group
+        if (o == createGroup) {
+            if (tf.getText().equals("")) {
+                JOptionPane.showMessageDialog(this, "You need to input name of group to create!");
+                tf.requestFocus();
+            } else {
+                client.send("CREATEGROUP " + tf.getText());
+                tf.setText("");
+
+            }
+        }
+
+        // Button to joining group
+        if (o == joinGroup) {
+            if (tf.getText().equals("")) {
+                JOptionPane.showMessageDialog(this, "You need to input name of group to join!");
+                tf.requestFocus();
+            } else {
+                client.send("JOINGROUP " + tf.getText());
+                tf.setText("");
+            }
+        }
+
         // Enter message in Textfield tf
         if (connected) {
             String target = (String) comboBox.getSelectedItem();
@@ -392,6 +430,8 @@ public class ClientGUI extends JFrame implements WindowListener, ActionListener 
             send.setEnabled(true);
             comboBox.setEnabled(true);
             download.setEnabled(true);
+            createGroup.setEnabled(true);
+            joinGroup.setEnabled(true);
             enter.setEnabled(true);
             // disable the Server and Port JTextField
             tfServer.setEditable(false);

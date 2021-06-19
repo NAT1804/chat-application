@@ -12,6 +12,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Scanner;
@@ -27,6 +29,7 @@ public class Client{
     private ClientGUI clientGUI = null;
     private String host;
     private int port;
+    private SimpleDateFormat sdf;
 
     public Client(String host, int port) {
         this.host = host;
@@ -37,13 +40,12 @@ public class Client{
         this.host = host;
         this.port = port;
         this.clientGUI = clientGUI;
+        this.sdf = new SimpleDateFormat("HH:mm:ss dd/MM/YYYY");
     }
 
     public boolean init() {
         try {
             socket = new Socket(host, port);
-            String msg = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
-            display(msg);
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
             //send(socket.getInetAddress() + ":" + socket.getPort() + " connected");
@@ -63,9 +65,9 @@ public class Client{
                                 removeUser(received);
                             }
                             else {
-                                String words[] = received.split("\\s", 4);
+                                String words[] = received.split("\\s", 5);
                                 if (received.startsWith("Download")) {
-                                    downloadFile("./storage/client/" + words[3]);
+                                    downloadFile("./storage/client/" + words[4]);
                                 }
                                 display(received);
                                 if (received.equals("Bye User")) {
@@ -90,16 +92,20 @@ public class Client{
         return true;
     }
 
+    // hàm hiển thị tin nhắn
     public void display(String msg) {
+        String mess = "[" + sdf.format(Calendar.getInstance().getTime()) + "] " + msg;
         if (clientGUI != null)
-            clientGUI.appendRoom(msg + "\n");
+            clientGUI.appendRoom(mess + "\n");
     }
 
+    // Hàm hiển thị user online
     public void displayUser(String msg) {
         if (clientGUI != null)
             clientGUI.appendUser(msg + "\n");
     }
 
+    // Hàm xóa user online khi ngắt kết nối
     public void removeUser(String msg) {
         if (clientGUI != null)
             clientGUI.delUser(msg);
@@ -127,6 +133,7 @@ public class Client{
         }
     }
 
+    // gửi file cho Server
     public void sendFile(String filename) throws IOException {
         File infile = new File(filename);
         FileInputStream fis = new FileInputStream(infile);
@@ -153,6 +160,7 @@ public class Client{
         dos.flush();
     }
 
+    // download file từ Server
     public void downloadFile(String filename) throws IOException {
         FileOutputStream fos    = new FileOutputStream(filename);
         BufferedOutputStream bos= new BufferedOutputStream(fos);

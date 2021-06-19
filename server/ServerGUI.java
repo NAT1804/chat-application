@@ -58,7 +58,7 @@ public class ServerGUI extends JFrame implements WindowListener, ActionListener 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (server != null) {
+       if (server != null) {
             server.stop();
             server = null;
             tPortNumber.setEditable(true);
@@ -137,7 +137,7 @@ public class ServerGUI extends JFrame implements WindowListener, ActionListener 
             // the server failed
             stopStart.setText("Start");
             tPortNumber.setEditable(true);
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/YYYY");
             String time = "[" + sdf.format(Calendar.getInstance().getTime()) + "] ";
             appendEvent(time + "Server crashed\n");
             server = null;

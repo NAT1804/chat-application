@@ -22,7 +22,7 @@ public class Server {
     public Server(int port, ServerGUI serverGUI) {
         this.port = port;
         this.serverGUI = serverGUI;
-        this.sdf = new SimpleDateFormat("HH:mm:ss");
+        this.sdf = new SimpleDateFormat("HH:mm:ss dd/MM/YYYY");
     }
 
     public ServerGUI getServerGUI() {
@@ -48,6 +48,7 @@ public class Server {
             displayEvent("Server start");
 
             while(servercontinue) {
+                //Waiting clients
                 displayEvent("Waiting connections on port " + this.port + "...");
                 clientSocket = serverSocket.accept();
 
